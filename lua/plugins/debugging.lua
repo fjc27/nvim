@@ -21,7 +21,6 @@ return {
 			dap.listeners.before.event_exited.dapui_config = function()
 				dapui.close()
 			end
-
 			vim.keymap.set("n", "<Leader>db", dap.toggle_breakpoint, {})
 			vim.keymap.set("n", "<Leader>dc", dap.continue, {})
 			vim.keymap.set("n", "<Leader>do", dap.step_over, {})
@@ -39,26 +38,29 @@ return {
 		opts = {
 			ensure_installed = { "codelldb", "debugpy" },
 			automatic_installation = true,
-			handlers = {}, -- use default auto-setup
+			handlers = {},
 		},
 		config = function(_, opts)
-			require("mason-nvim-dap").setup(opts)
-
-			-- Fallback: explicitly register codelldb if auto-setup didn't
 			local dap = require("dap")
-			if not dap.adapters.codelldb then
-				local ok, registry = pcall(require, "mason-registry")
-				if ok and registry.is_installed("codelldb") then
-					local pkg = registry.get_package("codelldb")
-					local path = pkg:get_install_path()
-					local codelldb = path .. "/extension/adapter/codelldb"
-					dap.adapters.codelldb = {
-						type = "server",
-						port = "${port}",
-						executable = { command = codelldb, args = { "--port", "${port}" } },
-					}
-				end
-			end
+			require("mason-nvim-dap").setup(opts)
+			dap.configurations.python = {
+				{
+					type = "python",
+					request = "launch",
+					name = "Launch file",
+					program = "${file}",
+					pythonPath = function()
+						local venv = vim.fn.findfile("pyproject.toml", ".;")
+						if venv ~= "" then
+							venv = vim.fn.fnamemodify(venv, ":h") .. "/.venv/bin/python"
+							if vim.fn.executable(venv) == 1 then
+								return venv
+							end
+						end
+						return "/usr/bin/python3"
+					end,
+				},
+			}
 			dap.configurations.cpp = {
 				{
 					name = "Launch (codelldb)",
@@ -71,30 +73,8 @@ return {
 					stopOnEntry = false,
 					args = {},
 				},
-				{
-					name = "Attach to process",
-					type = "codelldb",
-					request = "attach",
-					pid = require("dap.utils").pick_process,
-					cwd = "${workspaceFolder}",
-				},
 			}
 			dap.configurations.c = dap.configurations.cpp
-		end,
-	},
-	{
-		"mfussenegger/nvim-dap-python",
-		ft = { "python" },
-		dependencies = { "mfussenegger/nvim-dap", "williamboman/mason.nvim" },
-		config = function()
-			local ok, registry = pcall(require, "mason-registry")
-			local py
-			if ok and registry.is_installed("debugpy") then
-				py = registry.get_package("debugpy"):get_install_path() .. "/venv/bin/python"
-			else
-				py = "python"
-			end
-			require("dap-python").setup(py)
 		end,
 	},
 }
