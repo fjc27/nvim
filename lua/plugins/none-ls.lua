@@ -13,7 +13,9 @@ return {
                 null_ls.builtins.formatting.black,
 
                 require("none-ls.diagnostics.eslint_d"),
-                require("none-ls.diagnostics.cpplint"),
+                require("none-ls.diagnostics.cpplint").with({
+                    extra_args = { "--filter=-legal/copyright" },
+                }),
                 require("none-ls.code_actions.eslint_d"),
             },
         })
