@@ -15,5 +15,6 @@ require("vim-options")
 require("lazy").setup({
     spec = { { import = "plugins" } },
     checker = { enabled = true },
+    install = { missing = true },
     performance = { cache = { enabled = true } },
 })
