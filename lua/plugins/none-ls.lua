@@ -13,7 +13,7 @@ return {
                 null_ls.builtins.formatting.black,
 
                 require("none-ls.diagnostics.eslint_d"),
-                require("none-ls.diagnostics.cpplint").with({ args = { "--filter=-legal/copyright", "$FILENAME" } }),
+                require("none-ls.diagnostics.cpplint").with({ args = { "--filter=-legal/copyright,-whitespace/line_length", "$FILENAME" } }),
                 require("none-ls.code_actions.eslint_d"),
             },
         })
