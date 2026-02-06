@@ -11,9 +11,14 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("vim-options")
+if not vim.g.vscode then
+    require("vim-options")
+end
+
 require("lazy").setup({
-    spec = { { import = "plugins" } },
+    spec = {
+        { import = "plugins", cond = not vim.g.vscode }
+    },
     checker = {
         enabled = true,
         notify = false,
